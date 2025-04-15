@@ -47,7 +47,7 @@ jobs:
 
       - name: Test in CentOS Stream 9
         run: |
-          docker run --rm -v $(pwd)/dist:/test quay.io/centos/centos:stream9 sh -c "chmod +x /test/tmux && /test/tmux -V"
+          docker run --rm -v $(pwd)/dist:/test quay.io/centos/centos:stream9-minimal sh -c "chmod +x /test/tmux && /test/tmux -V"
           echo "✅ CentOS Stream 9 test passed"
 
       - name: Generate release description
@@ -66,7 +66,7 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          name: "tmux-static-musl-${{ github.ref_name }}"
+          name: "tmux-${{ github.ref_name }}-static-musl"
           body_path: ./dist/release_notes.md
           files: |
             dist/tmux-static-musl.tar.gz
