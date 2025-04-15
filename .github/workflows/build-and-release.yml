@@ -1,0 +1,76 @@
+name: Build and Release Static tmux
+
+on:
+  push:
+    tags:
+      - "*" # Run when any tag is pushed
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t static-tmux-builder .
+
+      - name: Extract tmux binary
+        run: |
+          mkdir -p ./dist
+          docker run --rm -v $(pwd)/dist:/build static-tmux-builder
+
+      - name: Get tmux version and file info
+        id: get-info
+        run: |
+          chmod +x ./dist/tmux
+          TMUX_VERSION_OUTPUT=$(./dist/tmux -V)
+          echo "TMUX_VERSION_OUTPUT=$TMUX_VERSION_OUTPUT" >> $GITHUB_ENV
+
+          FILE_INFO=$(file ./dist/tmux)
+          echo "FILE_INFO=$FILE_INFO" >> $GITHUB_ENV
+
+          echo "Version output: $TMUX_VERSION_OUTPUT"
+          echo "File info: $FILE_INFO"
+
+      - name: Create release assets
+        run: |
+          cd dist
+          tar -czvf tmux-static-musl.tar.gz tmux
+          sha256sum tmux-static-musl.tar.gz > tmux-static-musl.tar.gz.sha256
+
+      - name: Test in Ubuntu 22.04
+        run: |
+          docker run --rm -v $(pwd)/dist:/test ubuntu:22.04 sh -c "chmod +x /test/tmux && /test/tmux -V"
+          echo "✅ Ubuntu 22.04 test passed"
+
+      - name: Test in CentOS 9
+        run: |
+          docker run --rm -v $(pwd)/dist:/test centos:9 sh -c "chmod +x /test/tmux && /test/tmux -V"
+          echo "✅ CentOS 9 test passed"
+
+      - name: Generate release description
+        run: |
+          cat > ./dist/release_notes.md << EOF
+          # Static tmux with musl libc
+
+          Statically linked tmux binary built with musl libc.
+
+          - Version: \`${{ env.TMUX_VERSION_OUTPUT }}\`
+          - File details: \`${{ env.FILE_INFO }}\`
+          - Tested on: Ubuntu 22.04 and CentOS 9
+          - Build date: $(date)
+          EOF
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: "Static tmux Binary"
+          body_path: ./dist/release_notes.md
+          files: |
+            dist/tmux-static-musl.tar.gz
+            dist/tmux-static-musl.tar.gz.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
