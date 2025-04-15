@@ -25,7 +25,6 @@ jobs:
       - name: Get tmux version and file info
         id: get-info
         run: |
-          chmod +x ./dist/tmux
           TMUX_VERSION_OUTPUT=$(./dist/tmux -V)
           echo "TMUX_VERSION_OUTPUT=$TMUX_VERSION_OUTPUT" >> $GITHUB_ENV
 
