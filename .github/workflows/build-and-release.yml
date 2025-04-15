@@ -66,7 +66,7 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          name: "tmux-static-musl-${{ github.ref }}"
+          name: "tmux-static-musl-${{ github.ref_name }}
           body_path: ./dist/release_notes.md
           files: |
             dist/tmux-static-musl.tar.gz
