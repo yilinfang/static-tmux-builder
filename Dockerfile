@@ -35,7 +35,8 @@ RUN strip tmux-${TMUX_VERSION}/tmux
 
 # Create a directory for the final binary
 RUN mkdir -p /output && \
-    cp tmux-${TMUX_VERSION}/tmux /output/
+    cp tmux-${TMUX_VERSION}/tmux /output/ \
+    chmod +x /output/tmux
 
 # Set the entrypoint to copy the binary to a mounted volume
 ENTRYPOINT ["cp", "/output/tmux", "/build/"]
