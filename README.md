@@ -10,7 +10,7 @@ A Docker-based builder for building static [tmux](https://github.com/tmux/tmux)!
 
 ```bash
 docker build -t static-tmux-builder .
-docker run --rm -v $(pwd):/build -w /build static-tmux-builder ./build.sh
+docker run --rm -v $(pwd):/build -w /build static-tmux-builder
 ```
 
 The built tmux binary will be available in the current directory.

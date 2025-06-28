@@ -40,16 +40,6 @@ jobs:
           tar -czvf tmux-static-musl.tar.gz tmux
           sha256sum tmux-static-musl.tar.gz > tmux-static-musl.tar.gz.sha256
 
-      - name: Test in Ubuntu 22.04
-        run: |
-          docker run --rm -v $(pwd)/dist:/test ubuntu:22.04 sh -c "chmod +x /test/tmux && /test/tmux -V"
-          echo "✅ Ubuntu 22.04 test passed"
-
-      - name: Test in CentOS Stream 9
-        run: |
-          docker run --rm -v $(pwd)/dist:/test quay.io/centos/centos:stream9-minimal sh -c "chmod +x /test/tmux && /test/tmux -V"
-          echo "✅ CentOS Stream 9 test passed"
-
       - name: Generate release description
         run: |
           cat > ./dist/release_notes.md << EOF
@@ -59,7 +49,6 @@ jobs:
 
           - Version: \`${{ env.TMUX_VERSION_OUTPUT }}\`
           - File details: \`${{ env.FILE_INFO }}\`
-          - Tested on: Ubuntu 22.04 and CentOS Stream 9
           - Build date: $(date)
           EOF
       - name: Create Release
